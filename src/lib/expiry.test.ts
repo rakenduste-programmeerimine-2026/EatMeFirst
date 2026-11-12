@@ -4,8 +4,13 @@ import { daysUntil, expiryLabel, expiryLevel, todayString } from "@/lib/expiry";
 const TODAY = "2026-11-12";
 
 describe("todayString", () => {
-  it("formats a local date as YYYY-MM-DD", () => {
-    expect(todayString(new Date(2026, 0, 5))).toBe("2026-01-05");
+  it("formats a date as YYYY-MM-DD", () => {
+    expect(todayString(new Date("2026-01-05T12:00:00Z"))).toBe("2026-01-05");
+  });
+
+  it("uses Estonian time, not the server's UTC date", () => {
+    // 23:30 UTC on Jan 4 is already 01:30 on Jan 5 in Tallinn.
+    expect(todayString(new Date("2026-01-04T23:30:00Z"))).toBe("2026-01-05");
   });
 });
 
