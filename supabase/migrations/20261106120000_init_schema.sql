@@ -308,3 +308,13 @@ grant execute on function public.join_fridge(text) to authenticated;
 grant execute on function public.suggest_recipes(uuid, int) to authenticated;
 grant execute on function public.is_fridge_member(uuid) to authenticated;
 grant execute on function public.is_fridge_owner(uuid) to authenticated;
+
+-- Selged õigused sisseloginud kasutajale (töötab ka siis, kui projektis on
+-- "Automatically expose new tables" välja lülitatud). RLS piirab ridu edasi.
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on public.items   to authenticated;
+grant select, insert, update, delete on public.fridges to authenticated;
+grant select, delete                 on public.fridge_members to authenticated;
+grant select, update                 on public.profiles to authenticated;
+grant select                         on public.recipes  to authenticated;
+grant select                         on public.fridge_weekly_stats to authenticated;
