@@ -100,7 +100,7 @@ language plpgsql security definer set search_path = ''
 as $$
 begin
   insert into public.profiles (id, display_name)
-  values (new.id, coalesce(new.raw_user_meta_data ->> 'display_name', split_part(new.email, '@', 1), ''));
+  values (new.id, left(coalesce(nullif(trim(new.raw_user_meta_data ->> 'display_name'), ''), split_part(new.email, '@', 1), ''), 50));
 
   insert into public.fridges (name, created_by)
   values ('Minu külmkapp', new.id);
@@ -129,15 +129,36 @@ create trigger on_fridge_created
   after insert on public.fridges
   for each row execute function public.add_fridge_owner();
 
--- updated_at ja status_changed_at hoitakse automaatselt
+-- items süsteemiveerud (added_by, created_at, updated_at, status_changed_at)
+-- määrab andmebaas, mitte klient.
+create function public.items_before_insert()
+returns trigger
+language plpgsql set search_path = ''
+as $$
+begin
+  new.created_at := now();
+  new.updated_at := now();
+  new.status_changed_at := case when new.status = 'active' then null else now() end;
+  return new;
+end;
+$$;
+
+create trigger items_set_insert_defaults
+  before insert on public.items
+  for each row execute function public.items_before_insert();
+
 create function public.items_before_update()
 returns trigger
 language plpgsql set search_path = ''
 as $$
 begin
+  new.added_by := old.added_by;
+  new.created_at := old.created_at;
   new.updated_at := now();
   if new.status is distinct from old.status then
     new.status_changed_at := case when new.status = 'active' then null else now() end;
+  else
+    new.status_changed_at := old.status_changed_at;
   end if;
   return new;
 end;
@@ -146,6 +167,22 @@ $$;
 create trigger items_set_timestamps
   before update on public.items
   for each row execute function public.items_before_update();
+
+-- 3. fridges: looja (created_by) ja loomise aeg ei muutu
+create function public.fridges_before_update()
+returns trigger
+language plpgsql set search_path = ''
+as $$
+begin
+  new.created_by := old.created_by;
+  new.created_at := old.created_at;
+  return new;
+end;
+$$;
+
+create trigger fridges_lock_creator
+  before update on public.fridges
+  for each row execute function public.fridges_before_update();
 
 -- =========================================================
 -- RPC funktsioonid (kutsutakse supabase.rpc(...) kaudu)
@@ -298,12 +335,18 @@ create policy "recipes: read for authenticated" on public.recipes
 -- Õigused: anon ei saa midagi, RPC-d ainult sisseloginutele
 -- =========================================================
 revoke all on all tables in schema public from anon;
+-- Ka tulevastes migratsioonides loodud tabelid/sequence'id ei anna anon'ile õigusi
+alter default privileges in schema public revoke all on tables from anon;
+alter default privileges in schema public revoke all on sequences from anon;
 revoke execute on function public.join_fridge(text) from public, anon;
 revoke execute on function public.suggest_recipes(uuid, int) from public, anon;
 revoke execute on function public.is_fridge_member(uuid) from public, anon;
 revoke execute on function public.is_fridge_owner(uuid) from public, anon;
 revoke execute on function public.handle_new_user() from public, anon, authenticated;
 revoke execute on function public.add_fridge_owner() from public, anon, authenticated;
+revoke execute on function public.items_before_insert() from public, anon, authenticated;
+revoke execute on function public.items_before_update() from public, anon, authenticated;
+revoke execute on function public.fridges_before_update() from public, anon, authenticated;
 grant execute on function public.join_fridge(text) to authenticated;
 grant execute on function public.suggest_recipes(uuid, int) to authenticated;
 grant execute on function public.is_fridge_member(uuid) to authenticated;

@@ -31,7 +31,7 @@ Iga kasutaja saab registreerumisel automaatselt profiili ja isikliku külmkapi (
 | Veerg | Tüüp | Märkus |
 | --- | --- | --- |
 | id | uuid | = `auth.users.id` |
-| display_name | text | ≤ 50 märki; registreerumisel `options.data.display_name` või e-posti eesosa |
+| display_name | text | ≤ 50 märki; registreerumisel `options.data.display_name` (pikem lõigatakse 50 märgini) või e-posti eesosa |
 | created_at | timestamptz | |
 
 ### `fridges`
@@ -40,7 +40,7 @@ Iga kasutaja saab registreerumisel automaatselt profiili ja isikliku külmkapi (
 | id | uuid | |
 | name | text | 1–60 märki |
 | invite_code | text | 8 märki, unikaalne, genereeritakse ise |
-| created_by | uuid | täidetakse ise (`auth.uid()`) |
+| created_by | uuid | täidetakse ise (`auth.uid()`), ei muutu |
 | created_at | timestamptz | |
 
 Uue külmkapi loojast saab automaatselt `owner`.
@@ -60,15 +60,15 @@ Otse sisestada ei saa — liitumine käib `join_fridge()` kaudu.
 | --- | --- | --- |
 | id | uuid | |
 | fridge_id | uuid | kohustuslik |
-| added_by | uuid | täidetakse ise |
+| added_by | uuid | täidetakse ise, ei muutu |
 | name | text | 1–80 märki, kohustuslik |
 | category | text \| null | ≤ 40 |
 | quantity | numeric \| null | > 0 |
 | unit | text \| null | ≤ 20 (nt "tk", "g", "l") |
 | expiry_date | date | kohustuslik, `YYYY-MM-DD` |
 | status | `active` \| `used` \| `wasted` | vaikimisi `active` |
-| status_changed_at | timestamptz \| null | pannakse ise staatuse muutmisel |
-| created_at, updated_at | timestamptz | `updated_at` uueneb ise |
+| status_changed_at | timestamptz \| null | pannakse ise staatuse muutmisel; kliendi väärtust eiratakse |
+| created_at, updated_at | timestamptz | määrab andmebaas; kliendi väärtust eiratakse |
 
 ### `recipes` (ainult lugemiseks)
 | Veerg | Tüüp |
