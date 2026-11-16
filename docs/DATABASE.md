@@ -39,11 +39,13 @@ Iga kasutaja saab registreerumisel automaatselt profiili ja isikliku külmkapi (
 | --- | --- | --- |
 | id | uuid | |
 | name | text | 1–60 märki |
-| invite_code | text | 8 märki, unikaalne, genereeritakse ise |
+| invite_code | text | 16 märki (vähemalt), unikaalne, genereeritakse ise |
 | created_by | uuid | täidetakse ise (`auth.uid()`), ei muutu |
 | created_at | timestamptz | |
 
 Uue külmkapi loojast saab automaatselt `owner`.
+
+Korterikaaslane liitub kutsekoodiga: `join_fridge(kood)` tagastab külmkapi id, **vale koodi korral `null`** (mitte viga). Pärast 5 vale koodi 10 minuti jooksul annab see vea `too many invalid invite codes, try again later`, kuni aeg möödub. Tühikud koodi ümber eemaldatakse.
 
 ### `fridge_members`
 | Veerg | Tüüp | Märkus |
@@ -54,6 +56,8 @@ Uue külmkapi loojast saab automaatselt `owner`.
 | joined_at | timestamptz | |
 
 Otse sisestada ei saa — liitumine käib `join_fridge()` kaudu.
+
+**Viimane omanik ei saa lahkuda** (viga `P0001`: `last owner cannot leave the fridge; delete the fridge instead`). Omanik saab külmkapi kustutada — siis kustuvad ka kõik liikmed ja tooted.
 
 ### `items`
 | Veerg | Tüüp | Märkus |
@@ -113,7 +117,8 @@ await supabase.from('items').update({ status: 'used' }).eq('id', itemId);   // v
 await supabase.from('fridges').select('id, name, invite_code').order('created_at');
 
 // Korterikaaslase liitumine
-const { data: fridgeId, error } = await supabase.rpc('join_fridge', { p_invite_code: 'ab12cd34' });
+const { data: fridgeId, error } = await supabase.rpc('join_fridge', { p_invite_code: 'c81c1557fe3b4830' });
+// fridgeId === null → vale kood; error → liiga palju valesid katseid (või pole sisse logitud)
 
 // Retseptiideed kõige varem aeguvatest toodetest
 const { data: recipes } = await supabase.rpc('suggest_recipes', { p_fridge_id: fridgeId, p_limit: 5 });
