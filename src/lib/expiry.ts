@@ -5,12 +5,13 @@ export type ExpiryLevel = "expired" | "soon" | "ok";
 // How many days count as "expires soon".
 export const SOON_DAYS = 3;
 
-// Today's date as "YYYY-MM-DD" in the user's local time zone.
-export function todayString(now: Date = new Date()): string {
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, "0");
-  const d = String(now.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+// The app's users are in Estonia; pages render on a server that usually runs in UTC.
+export const APP_TIME_ZONE = "Europe/Tallinn";
+
+// Today's date as "YYYY-MM-DD" in the app's time zone.
+export function todayString(now: Date = new Date(), timeZone: string = APP_TIME_ZONE): string {
+  // The en-CA locale formats dates as YYYY-MM-DD.
+  return new Intl.DateTimeFormat("en-CA", { timeZone }).format(now);
 }
 
 // Whole days from `today` until `expiryDate` (negative = already expired).

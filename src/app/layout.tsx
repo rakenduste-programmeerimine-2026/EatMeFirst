@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
+import { logout } from "@/app/login/actions";
+import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,7 +14,12 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <html lang="et">
       <body>
@@ -20,6 +27,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <Link href="/" className="logo">
             EatMeFirst
           </Link>
+          {user && (
+            <form action={logout}>
+              <button className="link-button">Logi välja</button>
+            </form>
+          )}
         </header>
         <main className="container">{children}</main>
       </body>
