@@ -153,6 +153,48 @@ input {
   color: var(--danger);
 }
 
+/* Recipe ideas */
+.recipes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.recipes h2 {
+  font-size: 1.1rem;
+  margin: 0.5rem 0 0;
+}
+
+.recipe h3 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.recipe-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.recipe-uses {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+}
+
+.recipe details {
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.recipe summary {
+  cursor: pointer;
+  color: var(--primary);
+}
+
+.recipe details p {
+  margin: 0.4rem 0 0;
+}
+
 /* Item list */
 .item-list {
   list-style: none;
