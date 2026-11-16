@@ -1,4 +1,5 @@
 import ItemList from "@/components/ItemList";
+import RecipeIdeas from "@/components/RecipeIdeas";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function HomePage() {
@@ -28,6 +29,7 @@ export default async function HomePage() {
       </section>
 
       <ItemList items={items ?? []} />
+      <RecipeIdeas fridgeId={fridge.id} />
     </>
   );
 }
