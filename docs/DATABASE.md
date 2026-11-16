@@ -55,6 +55,8 @@ Uue külmkapi loojast saab automaatselt `owner`.
 
 Otse sisestada ei saa — liitumine käib `join_fridge()` kaudu.
 
+**Viimane omanik ei saa lahkuda** (viga `P0001`: `last owner cannot leave the fridge; delete the fridge instead`). Omanik saab külmkapi kustutada — siis kustuvad ka kõik liikmed ja tooted.
+
 ### `items`
 | Veerg | Tüüp | Märkus |
 | --- | --- | --- |
