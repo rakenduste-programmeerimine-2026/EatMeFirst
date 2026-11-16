@@ -27,3 +27,4 @@ Next.js (App Router) + TypeScript + Supabase. Tiim: Joosep (andmebaas ja kvalite
 - Uus loogika (nt aegumise arvutus, sorteerimine) tuleb koos unit-testiga.
 - Andmebaasi testid: `npx supabase test db` (vajab Dockerit ja `npx supabase start`).
 - GitHub Actions käivitab andmebaasi testid automaatselt igas PR-is, mis muudab kausta `supabase/`. PR-i ei merge'ita, kui **Database tests** on punane.
+- GitHub Actions kontrollib igas PR-is ka rakendust (lint, typecheck, testid, build). PR-i ei merge'ita, kui **App checks** on punane.
