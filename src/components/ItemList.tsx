@@ -1,3 +1,4 @@
+import ItemStatusButtons from "@/components/ItemStatusButtons";
 import { expiryLabel, expiryLevel } from "@/lib/expiry";
 import type { Tables } from "@/types/database.types";
 
@@ -8,7 +9,7 @@ export default function ItemList({ items }: { items: ListItem[] }) {
     return (
       <section className="card empty">
         <p>Külmkapp on tühi.</p>
-        <p className="muted">Toodete lisamine tuleb peagi.</p>
+        <p className="muted">Lisa esimene toode allpool.</p>
       </section>
     );
   }
@@ -26,6 +27,7 @@ export default function ItemList({ items }: { items: ListItem[] }) {
             )}
             <span className="badge">{expiryLabel(item.expiry_date)}</span>
           </div>
+          <ItemStatusButtons itemId={item.id} />
         </li>
       ))}
     </ul>

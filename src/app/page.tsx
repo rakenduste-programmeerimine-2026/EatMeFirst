@@ -1,3 +1,4 @@
+import AddItemForm from "@/components/AddItemForm";
 import ItemList from "@/components/ItemList";
 import RecipeIdeas from "@/components/RecipeIdeas";
 import { createClient } from "@/lib/supabase/server";
@@ -29,6 +30,7 @@ export default async function HomePage() {
       </section>
 
       <ItemList items={items ?? []} />
+      <AddItemForm fridgeId={fridge.id} />
       <RecipeIdeas fridgeId={fridge.id} />
     </>
   );
