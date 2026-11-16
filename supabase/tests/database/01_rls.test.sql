@@ -80,7 +80,7 @@ select is((select count(*)::int from public.items where name <> 'muudetud'), 3, 
 
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"22222222-2222-2222-2222-222222222222"}';
-select throws_ok($$ select public.join_fridge('valekood') $$, 'P0001', 'invalid invite code', 'vale kutsekood annab vea');
+select is(public.join_fridge('valekood'), null, 'vale kutsekood tagastab null');
 select lives_ok($$ select public.join_fridge((select invite_code from invite)) $$, 'õige kutsekoodiga saab liituda');
 
 select is((select count(*)::int from public.items), 3, 'pärast liitumist näeb Jüri ühise külmkapi tooteid');
