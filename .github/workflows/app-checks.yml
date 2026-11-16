@@ -8,6 +8,9 @@ on:
       - 'docs/**'
       - '*.md'
 
+permissions:
+  contents: read
+
 jobs:
   app-checks:
     runs-on: ubuntu-latest
