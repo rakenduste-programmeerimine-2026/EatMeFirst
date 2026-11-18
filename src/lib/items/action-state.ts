@@ -7,6 +7,9 @@ export type ActionState<T = Record<string, unknown>> = {
   ok: boolean;
   message?: string;
   fieldErrors?: FieldErrors<T>;
+  // Item that ended up with the change, so the UI can offer "Võta tagasi"
+  // (pass it to restoreItem). Set by setItemStatus and useItemPartially.
+  itemId?: string;
 };
 
 export const initialActionState: ActionState = { ok: false };

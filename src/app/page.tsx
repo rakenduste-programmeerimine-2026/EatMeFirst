@@ -1,6 +1,7 @@
 import Link from "next/link";
 import AddItemForm from "@/components/AddItemForm";
 import ItemList from "@/components/ItemList";
+import RecentlyFinished from "@/components/RecentlyFinished";
 import RecipeIdeas from "@/components/RecipeIdeas";
 import WeeklyStats from "@/components/WeeklyStats";
 import { fridgeLabel, pickFridge } from "@/lib/fridges";
@@ -19,7 +20,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const supabase = await createClient();
   const { data: items } = await supabase
     .from("items")
-    .select("id, name, quantity, unit, expiry_date")
+    .select("id, name, quantity, unit, expiry_date, category")
     .eq("fridge_id", fridge.id)
     .eq("status", "active")
     .order("expiry_date", { ascending: true })
@@ -48,6 +49,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       )}
 
       <ItemList items={items ?? []} />
+      <RecentlyFinished fridgeId={fridge.id} />
       <AddItemForm fridgeId={fridge.id} />
       <RecipeIdeas fridgeId={fridge.id} />
     </>

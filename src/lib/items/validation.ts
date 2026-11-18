@@ -22,6 +22,15 @@ export type FinalStatus = (typeof FINAL_STATUSES)[number];
 
 export type StatusChange = { item_id: string; status: FinalStatus };
 
+// Editable fields of an existing item (fridge and status are not changed here).
+export type ItemFields = Omit<NewItem, "fridge_id">;
+export type ItemUpdate = ItemFields & { item_id: string };
+
+export type ItemRef = { item_id: string };
+
+// "3 of 10 eggs eaten": `amount` is taken off the item and recorded as used/wasted.
+export type PartialUse = { item_id: string; amount: number; status: FinalStatus };
+
 export type FieldErrors<T> = Partial<Record<keyof T, string>>;
 
 export type ValidationResult<T> = { ok: true; data: T } | { ok: false; errors: FieldErrors<T> };
@@ -31,6 +40,8 @@ export type RawInput = Record<string, unknown>;
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DATE_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+const ITEM_ID_ERROR = "Toode puudub või on vigane.";
 
 // Postgres char_length counts characters, JS .length counts UTF-16 units.
 function charLength(value: string): number {
@@ -77,11 +88,9 @@ function optionalText(value: unknown, max: number): { ok: true; value: string | 
   return charLength(text) <= max ? { ok: true, value: text } : { ok: false };
 }
 
-export function parseNewItem(input: RawInput): ValidationResult<NewItem> {
-  const errors: FieldErrors<NewItem> = {};
-
-  const fridgeId = input.fridge_id;
-  if (!isUuid(fridgeId)) errors.fridge_id = "Külmkapp puudub või on vigane.";
+// Shared by adding and editing, so both follow the same rules.
+function parseItemFields(input: RawInput): ValidationResult<ItemFields> {
+  const errors: FieldErrors<ItemFields> = {};
 
   const name = asTrimmedString(input.name);
   if (name === "") errors.name = "Sisesta toote nimi.";
@@ -106,7 +115,6 @@ export function parseNewItem(input: RawInput): ValidationResult<NewItem> {
   return {
     ok: true,
     data: {
-      fridge_id: fridgeId as string,
       name,
       expiry_date: expiryDate as string,
       quantity: quantity.value,
@@ -116,11 +124,65 @@ export function parseNewItem(input: RawInput): ValidationResult<NewItem> {
   };
 }
 
+export function parseNewItem(input: RawInput): ValidationResult<NewItem> {
+  const fields = parseItemFields(input);
+  const fridgeId = input.fridge_id;
+  const fridgeOk = isUuid(fridgeId);
+
+  if (!fields.ok || !fridgeOk) {
+    const errors: FieldErrors<NewItem> = fields.ok ? {} : { ...fields.errors };
+    if (!fridgeOk) errors.fridge_id = "Külmkapp puudub või on vigane.";
+    return { ok: false, errors };
+  }
+
+  return { ok: true, data: { fridge_id: fridgeId, ...fields.data } };
+}
+
+export function parseItemUpdate(input: RawInput): ValidationResult<ItemUpdate> {
+  const fields = parseItemFields(input);
+  const itemId = input.item_id;
+  const idOk = isUuid(itemId);
+
+  if (!fields.ok || !idOk) {
+    const errors: FieldErrors<ItemUpdate> = fields.ok ? {} : { ...fields.errors };
+    if (!idOk) errors.item_id = ITEM_ID_ERROR;
+    return { ok: false, errors };
+  }
+
+  return { ok: true, data: { item_id: itemId, ...fields.data } };
+}
+
+export function parseItemRef(input: RawInput): ValidationResult<ItemRef> {
+  const itemId = input.item_id;
+  if (!isUuid(itemId)) return { ok: false, errors: { item_id: ITEM_ID_ERROR } };
+  return { ok: true, data: { item_id: itemId } };
+}
+
+export function parsePartialUse(input: RawInput): ValidationResult<PartialUse> {
+  const errors: FieldErrors<PartialUse> = {};
+
+  const itemId = input.item_id;
+  if (!isUuid(itemId)) errors.item_id = ITEM_ID_ERROR;
+
+  // Same number rules as quantity, but an empty amount is not allowed.
+  const amount = parseQuantity(input.amount);
+  const amountValue = amount.ok ? amount.value : null;
+  if (amountValue === null) errors.amount = "Sisesta, kui palju kasutasid (positiivne arv).";
+
+  const status = input.status;
+  const isFinal = (FINAL_STATUSES as readonly unknown[]).includes(status);
+  if (!isFinal) errors.status = "Vigane staatus.";
+
+  if (!isUuid(itemId) || amountValue === null || !isFinal) return { ok: false, errors };
+
+  return { ok: true, data: { item_id: itemId, amount: amountValue, status: status as FinalStatus } };
+}
+
 export function parseStatusChange(input: RawInput): ValidationResult<StatusChange> {
   const errors: FieldErrors<StatusChange> = {};
 
   const itemId = input.item_id;
-  if (!isUuid(itemId)) errors.item_id = "Toode puudub või on vigane.";
+  if (!isUuid(itemId)) errors.item_id = ITEM_ID_ERROR;
 
   const status = input.status;
   const isFinal = (FINAL_STATUSES as readonly unknown[]).includes(status);
