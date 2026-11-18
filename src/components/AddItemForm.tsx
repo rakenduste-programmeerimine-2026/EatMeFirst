@@ -2,8 +2,10 @@
 
 import { useActionState, useRef } from "react";
 import { addItem } from "@/app/items/actions";
+import QuantityInput from "@/components/QuantityInput";
 import { addDays, todayString } from "@/lib/expiry";
 import { initialActionState } from "@/lib/items/action-state";
+import { QUANTITY_HINT } from "@/lib/quantity";
 
 // Quick picks for food without a printed date (vegetables, leftovers).
 const QUICK_DATES = [
@@ -48,8 +50,12 @@ export default function AddItemForm({ fridgeId }: { fridgeId: string }) {
       <div className="row">
         <label>
           Kogus
-          <input name="quantity" type="text" inputMode="decimal" pattern="\d+([.,]\d+)?" placeholder="1" />
-          {errors.quantity && <span className="field-error">{errors.quantity}</span>}
+          <QuantityInput />
+          {errors.quantity ? (
+            <span className="field-error">{errors.quantity}</span>
+          ) : (
+            <span className="field-hint">{QUANTITY_HINT}</span>
+          )}
         </label>
         <label>
           Ühik
