@@ -12,7 +12,7 @@ Next.js (App Router) + TypeScript + Supabase.
 - **Lisa toode**: nimi, aegumiskuupäev (kiirnupud „Homme“, „+3 päeva“, „+1 nädal“ toodetele, millel kuupäeva pole), kogus ja ühik.
 - **Mida täna teha?**: retseptiideed toodetest, mis aeguvad kõige varem.
 - **Nädala kokkuvõte**: mitu toodet sel nädalal söödi ja mitu ära visati, võrdluseks eelmise nädala äravisatud toodete arv.
-- **Külmkapid** (`/fridges`): iga külmkapi kutsekood korterikaaslastele ja liikmete nimekiri. Kui oled mitme külmkapi liige, saab avalehel nende vahel vahetada.
+- **Külmkapid** (`/fridges`): iga külmkapi kutsekood (kopeerimisnupuga) ja liikmete nimekiri ning vorm, millega saab kutsekoodiga teise külmkapiga liituda. Kui oled mitme külmkapi liige, saab avalehel nende vahel vahetada.
 
 ## Käivitamine
 
@@ -41,7 +41,7 @@ src/
     page.tsx              avaleht
     login/                sisselogimine ja registreerumine
     items/actions.ts      toote lisamine ja staatuse muutmine
-    fridges/              külmkappide leht (kutsekoodid ja liikmed)
+    fridges/              külmkappide leht ja kutsekoodiga liitumine
   components/             UI komponendid (nimekiri, vormid, retseptid, statistika)
   lib/
     expiry.ts             kuupäevad, aegumise arvutus ja sildid

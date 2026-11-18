@@ -332,6 +332,16 @@ input {
   font-size: 0.9rem;
 }
 
+.invite-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.invite-row input {
+  flex: 1;
+  min-width: 0;
+}
+
 .invite {
   display: flex;
   flex-direction: column;
