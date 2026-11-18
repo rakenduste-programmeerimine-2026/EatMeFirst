@@ -1,4 +1,6 @@
 import Link from "next/link";
+import CopyCodeButton from "@/components/CopyCodeButton";
+import JoinFridgeForm from "@/components/JoinFridgeForm";
 import { fridgeLabel } from "@/lib/fridges";
 import { getMyFridges } from "@/lib/fridges-query";
 import { createClient } from "@/lib/supabase/server";
@@ -18,7 +20,9 @@ export default async function FridgesPage() {
     <>
       <section>
         <h1>Külmkapid</h1>
-        <p className="muted">Sinu külmkapid, nende liikmed ja kutsekoodid.</p>
+        <p className="muted">
+          Jaga külmkappi pere või korterikaaslastega: saada neile kutsekood ja nad saavad allpool liituda.
+        </p>
       </section>
 
       {fridges.map((fridge) => {
@@ -38,16 +42,19 @@ export default async function FridgesPage() {
             </div>
             <p className="muted">Liikmed: {names.join(", ")}</p>
             {code && (
-              <label className="invite">
-                Kutsekood
-                <input type="text" readOnly value={code} />
-              </label>
+              <div className="invite">
+                <label htmlFor={`invite-${fridge.id}`}>Kutsekood</label>
+                <div className="invite-row">
+                  <input id={`invite-${fridge.id}`} type="text" readOnly value={code} />
+                  <CopyCodeButton code={code} />
+                </div>
+              </div>
             )}
           </article>
         );
       })}
 
-      <p className="muted">Kutsekoodiga teise külmkapiga liitumine tuleb peagi.</p>
+      <JoinFridgeForm />
     </>
   );
 }
