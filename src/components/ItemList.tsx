@@ -1,8 +1,8 @@
-import ItemStatusButtons from "@/components/ItemStatusButtons";
+import ItemActions from "@/components/ItemActions";
 import { expiryLabel, expiryLevel } from "@/lib/expiry";
 import type { Tables } from "@/types/database.types";
 
-export type ListItem = Pick<Tables<"items">, "id" | "name" | "quantity" | "unit" | "expiry_date">;
+export type ListItem = Pick<Tables<"items">, "id" | "name" | "quantity" | "unit" | "expiry_date" | "category">;
 
 export default function ItemList({ items }: { items: ListItem[] }) {
   if (items.length === 0) {
@@ -27,7 +27,7 @@ export default function ItemList({ items }: { items: ListItem[] }) {
             )}
             <span className="badge">{expiryLabel(item.expiry_date)}</span>
           </div>
-          <ItemStatusButtons itemId={item.id} />
+          <ItemActions item={item} />
         </li>
       ))}
     </ul>
