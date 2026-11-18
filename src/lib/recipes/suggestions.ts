@@ -14,9 +14,23 @@ export const MAX_LIMIT = 20;
 
 type RpcRow = Database["public"]["Functions"]["suggest_recipes"]["Returns"][number];
 
+// #34: suggest_recipes also returns the recipe's ingredients that are not in
+// the fridge. Optional here until that migration is in and the types are
+// regenerated, so the app keeps working against the old function.
+type RpcRowWithMissing = RpcRow & { missing_ingredients?: unknown };
+
 // `minutes` is nullable in the recipes table, but generated RPC types
 // cannot express that, so it is widened here.
-export type RecipeSuggestion = Omit<RpcRow, "minutes"> & { minutes: number | null };
+export type RecipeSuggestion = Omit<RpcRow, "minutes"> & {
+  minutes: number | null;
+  // Ingredient keywords the fridge is missing, e.g. ["tomat"]. Empty when nothing is missing.
+  missing_ingredients: string[];
+};
+
+// Keeps only real strings, so a missing or malformed column becomes [].
+function missingIngredients(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+}
 
 export type RecipeSuggestionsResult =
   | { ok: true; recipes: RecipeSuggestion[] }
@@ -48,5 +62,12 @@ export async function getRecipeSuggestions(
   }
 
   // No matching items is a normal result, not an error.
-  return { ok: true, recipes: (data ?? []).map((row) => ({ ...row, minutes: row.minutes ?? null })) };
+  return {
+    ok: true,
+    recipes: (data ?? []).map((row: RpcRowWithMissing) => ({
+      ...row,
+      minutes: row.minutes ?? null,
+      missing_ingredients: missingIngredients(row.missing_ingredients),
+    })),
+  };
 }

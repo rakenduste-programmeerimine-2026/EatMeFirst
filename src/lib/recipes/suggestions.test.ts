@@ -59,7 +59,24 @@ describe("getRecipeSuggestions", () => {
     const result = await getRecipeSuggestions(FRIDGE_ID, 3);
 
     expect(rpc).toHaveBeenCalledWith("suggest_recipes", { p_fridge_id: FRIDGE_ID, p_limit: 3 });
-    expect(result).toEqual({ ok: true, recipes: [omlett] });
+    expect(result).toEqual({ ok: true, recipes: [{ ...omlett, missing_ingredients: [] }] });
+  });
+
+  it("passes on the missing ingredients from the database (#34)", async () => {
+    rpcResult = { data: [{ ...omlett, missing_ingredients: ["juust"] }], error: null };
+    const result = await getRecipeSuggestions(FRIDGE_ID);
+
+    expect(result.ok && result.recipes[0].missing_ingredients).toEqual(["juust"]);
+  });
+
+  it("uses an empty list until the database returns missing ingredients", async () => {
+    // Old function without the column, a null value, or something unexpected.
+    for (const missing of [undefined, null, "juust", [1, "juust", null]]) {
+      rpcResult = { data: [{ ...omlett, missing_ingredients: missing }], error: null };
+      const result = await getRecipeSuggestions(FRIDGE_ID);
+      const expected = Array.isArray(missing) ? ["juust"] : [];
+      expect(result.ok && result.recipes[0].missing_ingredients, String(missing)).toEqual(expected);
+    }
   });
 
   it("uses the default limit and clamps large values", async () => {
