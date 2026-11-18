@@ -267,6 +267,11 @@ input {
   font-size: 0.85rem;
 }
 
+.field-hint {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
 /* Header navigation */
 .header-nav {
   display: flex;
