@@ -1,13 +1,25 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import { addItem } from "@/app/items/actions";
-import { todayString } from "@/lib/expiry";
+import { addDays, todayString } from "@/lib/expiry";
 import { initialActionState } from "@/lib/items/action-state";
+
+// Quick picks for food without a printed date (vegetables, leftovers).
+const QUICK_DATES = [
+  { label: "Homme", days: 1 },
+  { label: "+3 päeva", days: 3 },
+  { label: "+1 nädal", days: 7 },
+];
 
 export default function AddItemForm({ fridgeId }: { fridgeId: string }) {
   const [state, formAction, pending] = useActionState(addItem, initialActionState);
   const errors = state.fieldErrors ?? {};
+  const dateInput = useRef<HTMLInputElement>(null);
+
+  function setExpiry(days: number) {
+    if (dateInput.current) dateInput.current.value = addDays(todayString(), days);
+  }
 
   return (
     <form action={formAction} className="card form">
@@ -22,9 +34,16 @@ export default function AddItemForm({ fridgeId }: { fridgeId: string }) {
 
       <label>
         Aegub
-        <input name="expiry_date" type="date" required defaultValue={todayString()} />
+        <input ref={dateInput} name="expiry_date" type="date" required defaultValue={todayString()} />
         {errors.expiry_date && <span className="field-error">{errors.expiry_date}</span>}
       </label>
+      <div className="quick-dates">
+        {QUICK_DATES.map((pick) => (
+          <button key={pick.days} type="button" className="chip" onClick={() => setExpiry(pick.days)}>
+            {pick.label}
+          </button>
+        ))}
+      </div>
 
       <div className="row">
         <label>

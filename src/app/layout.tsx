@@ -28,9 +28,12 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             EatMeFirst
           </Link>
           {user && (
-            <form action={logout}>
-              <button className="link-button">Logi välja</button>
-            </form>
+            <nav className="header-nav">
+              <Link href="/fridges">Külmkapid</Link>
+              <form action={logout}>
+                <button className="link-button">Logi välja</button>
+              </form>
+            </nav>
           )}
         </header>
         <main className="container">{children}</main>

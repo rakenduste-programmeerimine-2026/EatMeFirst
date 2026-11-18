@@ -266,3 +266,80 @@ input {
   color: var(--danger);
   font-size: 0.85rem;
 }
+
+/* Header navigation */
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-nav a {
+  text-decoration: none;
+}
+
+/* Weekly stats under the heading */
+.stats {
+  margin: 0.4rem 0 0;
+  font-size: 0.9rem;
+}
+
+/* Fridge switcher and quick date buttons */
+.fridge-switcher,
+.quick-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.chip-active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.quick-dates {
+  margin-top: -0.4rem;
+}
+
+/* Fridges page */
+.fridge {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fridge-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.fridge .muted {
+  font-size: 0.9rem;
+}
+
+.invite {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.invite input {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  letter-spacing: 0.05em;
+}

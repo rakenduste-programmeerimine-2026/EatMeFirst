@@ -36,3 +36,16 @@ export function expiryLabel(expiryDate: string, today: string = todayString()): 
   if (days === 1) return "Aegub homme";
   return `${days} päeva pärast`;
 }
+
+// Date `days` days after `date` (both "YYYY-MM-DD"; negative goes back).
+export function addDays(date: string, days: number): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+// Monday of the week that `date` falls in, matching the weeks in fridge_weekly_stats.
+export function weekStart(date: string = todayString()): string {
+  const weekday = new Date(`${date}T00:00:00Z`).getUTCDay(); // 0 = Sunday
+  return addDays(date, -((weekday + 6) % 7));
+}
