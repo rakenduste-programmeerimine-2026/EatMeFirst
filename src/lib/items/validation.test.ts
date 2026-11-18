@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { isValidDate, parseNewItem, parseStatusChange } from "@/lib/items/validation";
+import {
+  isValidDate,
+  parseItemRef,
+  parseItemUpdate,
+  parseNewItem,
+  parsePartialUse,
+  parseStatusChange,
+} from "@/lib/items/validation";
 
 const FRIDGE_ID = "6f1c2b9e-3a4d-4e5f-8a7b-1c2d3e4f5a6b";
 const ITEM_ID = "0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d";
@@ -117,6 +124,60 @@ describe("parseStatusChange", () => {
   it("rejects a malformed item id", () => {
     expect(parseStatusChange({ item_id: "abc", status: "used" })).toMatchObject({
       errors: { item_id: expect.any(String) },
+    });
+  });
+});
+
+describe("parseItemUpdate", () => {
+  const edit = { item_id: ITEM_ID, name: "Munad", expiry_date: "2026-11-25" };
+
+  it("accepts the same fields as a new item plus item_id", () => {
+    expect(parseItemUpdate({ ...edit, quantity: "6", unit: "tk" })).toEqual({
+      ok: true,
+      data: { ...edit, quantity: 6, unit: "tk", category: null },
+    });
+  });
+
+  it("drops fridge_id, status and added_by", () => {
+    const result = parseItemUpdate({ ...edit, fridge_id: FRIDGE_ID, status: "used", added_by: ITEM_ID });
+    expect(result.ok && Object.keys(result.data).sort()).toEqual(
+      ["category", "expiry_date", "item_id", "name", "quantity", "unit"],
+    );
+  });
+
+  it("reports field errors together with a bad item id", () => {
+    const result = parseItemUpdate({ item_id: "abc", name: "", expiry_date: "2026-11-25" });
+    expect(!result.ok && Object.keys(result.errors).sort()).toEqual(["item_id", "name"]);
+  });
+});
+
+describe("parseItemRef", () => {
+  it("accepts a uuid and rejects anything else", () => {
+    expect(parseItemRef({ item_id: ITEM_ID })).toEqual({ ok: true, data: { item_id: ITEM_ID } });
+    expect(parseItemRef({ item_id: "abc" }).ok).toBe(false);
+    expect(parseItemRef({}).ok).toBe(false);
+  });
+});
+
+describe("parsePartialUse", () => {
+  it("accepts an amount with a decimal comma", () => {
+    expect(parsePartialUse({ item_id: ITEM_ID, amount: "0,5", status: "wasted" })).toEqual({
+      ok: true,
+      data: { item_id: ITEM_ID, amount: 0.5, status: "wasted" },
+    });
+  });
+
+  it("requires a positive amount", () => {
+    for (const amount of [undefined, "", "0", "-1", "abc"]) {
+      expect(parsePartialUse({ item_id: ITEM_ID, amount, status: "used" }), String(amount)).toMatchObject({
+        errors: { amount: expect.any(String) },
+      });
+    }
+  });
+
+  it("only allows used and wasted", () => {
+    expect(parsePartialUse({ item_id: ITEM_ID, amount: "1", status: "active" })).toMatchObject({
+      errors: { status: expect.any(String) },
     });
   });
 });
