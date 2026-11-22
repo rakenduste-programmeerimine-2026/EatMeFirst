@@ -1,15 +1,70 @@
 :root {
+  color-scheme: light;
   --bg: #f6f7f4;
   --surface: #ffffff;
   --text: #1d2420;
   --muted: #66706a;
   --border: #dde2dc;
   --primary: #2f7d4f;
+  --on-primary: #ffffff;
+  --primary-text: #2f7d4f;
+  --header-bg: #2f7d4f;
+  --header-text: #ffffff;
+  --input-bg: #ffffff;
+  --input-border: #dde2dc;
+  --success-bg: #e8f3ec;
   --radius: 10px;
   --danger: #b3261e;
   --danger-bg: #fdecea;
   --warn: #9a6700;
   --warn-bg: #fff4d6;
+}
+
+/* Dark theme: when the device prefers dark and nothing else is chosen,
+   or when "dark" is chosen with the header toggle (data-theme on <html>).
+   The two blocks hold the same values. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121614;
+    --surface: #1b211e;
+    --text: #e4e9e5;
+    --muted: #a2ada6;
+    --border: #3a4540;
+    --primary: #2f7d4f;
+    --on-primary: #ffffff;
+    --primary-text: #7fca9f;
+    --header-bg: #1a3a28;
+    --header-text: #e4e9e5;
+    --input-bg: #121614;
+    --input-border: #75817a;
+    --success-bg: #1f3528;
+    --danger: #ff8f85;
+    --danger-bg: #3b1c1a;
+    --warn: #f2bd55;
+    --warn-bg: #3a2f14;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121614;
+  --surface: #1b211e;
+  --text: #e4e9e5;
+  --muted: #a2ada6;
+  --border: #3a4540;
+  --primary: #2f7d4f;
+  --on-primary: #ffffff;
+  --primary-text: #7fca9f;
+  --header-bg: #1a3a28;
+  --header-text: #e4e9e5;
+  --input-bg: #121614;
+  --input-border: #75817a;
+  --success-bg: #1f3528;
+  --danger: #ff8f85;
+  --danger-bg: #3b1c1a;
+  --warn: #f2bd55;
+  --warn-bg: #3a2f14;
 }
 
 * {
@@ -44,8 +99,8 @@ h2 {
 }
 
 .site-header {
-  background: var(--primary);
-  color: #fff;
+  background: var(--header-bg);
+  color: var(--header-text);
   padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
@@ -114,9 +169,10 @@ h2 {
 input {
   font: inherit;
   padding: 0.55rem 0.65rem;
-  border: 1px solid var(--border);
+  border: 1px solid var(--input-border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--input-bg);
+  color: var(--text);
   width: 100%;
 }
 
@@ -138,14 +194,14 @@ input {
 .btn-primary {
   background: var(--primary);
   border-color: var(--primary);
-  color: #fff;
+  color: var(--on-primary);
 }
 
 .alert {
   margin: 0;
   padding: 0.6rem 0.8rem;
   border-radius: 8px;
-  background: #e8f3ec;
+  background: var(--success-bg);
 }
 
 .alert-error {
@@ -188,7 +244,7 @@ input {
 
 .recipe summary {
   cursor: pointer;
-  color: var(--primary);
+  color: var(--primary-text);
 }
 
 .recipe details p {
@@ -247,7 +303,7 @@ input {
 }
 
 .item-ok {
-  border-left-color: var(--primary);
+  border-left-color: var(--primary-text);
 }
 
 .item-actions {
@@ -283,6 +339,31 @@ input {
   text-decoration: none;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
 /* Weekly stats under the heading */
 .stats {
   margin: 0.4rem 0 0;
@@ -312,7 +393,7 @@ input {
 .chip-active {
   background: var(--primary);
   border-color: var(--primary);
-  color: #fff;
+  color: var(--on-primary);
 }
 
 .quick-dates {
