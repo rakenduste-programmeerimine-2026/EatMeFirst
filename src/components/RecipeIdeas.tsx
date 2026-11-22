@@ -6,8 +6,9 @@ export default async function RecipeIdeas({ fridgeId }: { fridgeId: string }) {
   const result = await getRecipeSuggestions(fridgeId, 3);
 
   return (
-    <section className="recipes">
-      <h2>Mida täna teha?</h2>
+    <section className="recipes" aria-labelledby="recipes-title">
+      <h2 id="recipes-title">Mida täna teha?</h2>
+      <p className="muted">Ideed toodetest, mis aeguvad kõige varem.</p>
 
       {!result.ok && <p className="alert alert-error">{result.message}</p>}
 
@@ -20,12 +21,20 @@ export default async function RecipeIdeas({ fridgeId }: { fridgeId: string }) {
           <article key={recipe.recipe_id} className="card recipe">
             <div className="recipe-head">
               <h3>{recipe.title}</h3>
-              {recipe.minutes !== null && <span className="muted">{recipe.minutes} min</span>}
+              {recipe.minutes !== null && <span className="recipe-minutes">{recipe.minutes} min</span>}
             </div>
             <p className="recipe-uses">
-              Kasutab: <strong>{recipe.matched_items.join(", ")}</strong>
-              <span className="muted"> · {expiryLabel(recipe.soonest_expiry).toLowerCase()}</span>
+              <span>Kasutab:</span>
+              {recipe.matched_items.map((name, index) => (
+                <span key={`${name}-${index}`} className="tag">
+                  {name}
+                </span>
+              ))}
+              <span className="muted">{expiryLabel(recipe.soonest_expiry).toLowerCase()}</span>
             </p>
+            {recipe.missing_ingredients.length > 0 && (
+              <p className="recipe-missing">Vaja veel: {recipe.missing_ingredients.join(", ")}</p>
+            )}
             <details>
               <summary>Kuidas teha</summary>
               <p>{recipe.instructions}</p>
