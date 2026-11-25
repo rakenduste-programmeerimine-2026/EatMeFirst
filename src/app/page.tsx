@@ -1,11 +1,12 @@
 import Link from "next/link";
-import AddItemForm from "@/components/AddItemForm";
+import AddItemSheet from "@/components/AddItemSheet";
 import ItemList from "@/components/ItemList";
 import RecentlyFinished from "@/components/RecentlyFinished";
 import RecipeIdeas from "@/components/RecipeIdeas";
 import WeeklyStats from "@/components/WeeklyStats";
 import { fridgeLabel, pickFridge } from "@/lib/fridges";
 import { getMyFridges } from "@/lib/fridges-query";
+import { homeSummary } from "@/lib/home";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function HomePage({ searchParams }: { searchParams: Promise<{ fridge?: string }> }) {
@@ -26,14 +27,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     .order("expiry_date", { ascending: true })
     .order("name");
 
+  const summary = homeSummary(items ?? []);
+
   return (
     <>
-      <section>
-        <h1>Söö esimesena</h1>
-        <p className="muted">{fridgeLabel(fridge)} · kõige varem aeguv on eespool</p>
-        <WeeklyStats fridgeId={fridge.id} />
-      </section>
-
       {fridges.length > 1 && (
         <nav className="fridge-switcher" aria-label="Külmkapid">
           {fridges.map((other) => (
@@ -41,6 +38,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               key={other.id}
               href={`/?fridge=${other.id}`}
               className={other.id === fridge.id ? "chip chip-active" : "chip"}
+              aria-current={other.id === fridge.id ? "page" : undefined}
             >
               {fridgeLabel(other)}
             </Link>
@@ -48,10 +46,17 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         </nav>
       )}
 
+      <section className="hero">
+        <p className="eyebrow">{fridgeLabel(fridge)}</p>
+        <h1>Söö esimesena</h1>
+        {summary && <p className="summary">{summary}</p>}
+      </section>
+
+      <WeeklyStats fridgeId={fridge.id} />
       <ItemList items={items ?? []} />
       <RecentlyFinished fridgeId={fridge.id} />
-      <AddItemForm fridgeId={fridge.id} />
       <RecipeIdeas fridgeId={fridge.id} />
+      <AddItemSheet fridgeId={fridge.id} />
     </>
   );
 }

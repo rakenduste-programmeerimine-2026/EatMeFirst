@@ -27,20 +27,32 @@ export default async function FridgesPage() {
 
       {fridges.map((fridge) => {
         const code = codes?.find((row) => row.id === fridge.id)?.invite_code;
-        const names = (members ?? [])
+        const people = (members ?? [])
           .filter((row) => row.fridge_id === fridge.id)
-          .map((row) => {
-            const name = row.profiles?.display_name ?? "Nimetu";
-            return row.role === "owner" ? `${name} (omanik)` : name;
-          });
+          .map((row) => ({ name: row.profiles?.display_name ?? "Nimetu", owner: row.role === "owner" }));
 
         return (
           <article key={fridge.id} className="card fridge">
             <div className="fridge-head">
               <h2>{fridgeLabel(fridge)}</h2>
-              <Link href={`/?fridge=${fridge.id}`}>Ava</Link>
+              <Link href={`/?fridge=${fridge.id}`} className="btn">
+                Ava
+              </Link>
             </div>
-            <p className="muted">Liikmed: {names.join(", ")}</p>
+            <div className="members">
+              <h3>Liikmed</h3>
+              <ul>
+                {people.map((person, index) => (
+                  <li key={index} className="member">
+                    <span className="member-initial" aria-hidden="true">
+                      {person.name.charAt(0).toUpperCase()}
+                    </span>
+                    {person.name}
+                    {person.owner && <span className="muted"> (omanik)</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
             {code && (
               <div className="invite">
                 <label htmlFor={`invite-${fridge.id}`}>Kutsekood</label>

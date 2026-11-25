@@ -5,6 +5,10 @@ import { logout } from "@/app/login/actions";
 import ThemeToggle from "@/components/ThemeToggle";
 import { createClient } from "@/lib/supabase/server";
 import { parseTheme, THEME_COOKIE } from "@/lib/theme";
+// Self-hosted fonts (no requests to Google): Schibsted Grotesk for text,
+// Martian Mono for the "best before" date stamps. Both cover Estonian letters.
+import "@fontsource-variable/schibsted-grotesk";
+import "@fontsource-variable/martian-mono";
 import "./globals.css";
 
 export const metadata: Metadata = {
